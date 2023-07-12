@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:notes/models/task.dart';
 
+import '../utils/utils.dart';
+
 class ListItemWidget extends StatelessWidget {
-  const ListItemWidget({super.key, required this.task});
+  ListItemWidget({super.key, required this.task});
 
   final Task task;
-
-  String convertDate(DateTime dateTime) {
-    return '${dateTime.toLocal().day}/'
-        '${dateTime.toLocal().month < 10 ? ('0${dateTime.toLocal().month}') : dateTime.toLocal().month}/'
-        '${dateTime.toLocal().year} - ${dateTime.toLocal().hour}:${dateTime.toLocal().minute}';
-  }
+  final MethodsGlobal _methodsGlobal = MethodsGlobal();
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +23,7 @@ class ListItemWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              convertDate(task.date),
+              _methodsGlobal.convertDate(task.date),
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w200,

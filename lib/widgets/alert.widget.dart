@@ -21,7 +21,7 @@ class AlertWidget extends StatelessWidget {
         TextButton(
           child: Text(closeButtonLabel),
           onPressed: () {
-            Navigator.of(context).pop(); // Fechar o diálogo
+            Navigator.of(context).pop();
           },
         ),
       ],
