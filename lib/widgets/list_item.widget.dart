@@ -43,7 +43,7 @@ class ListItemWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                _methodsGlobal.convertDate(task.date),
+                _methodsGlobal.convertDate(task.datetime),
                 style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w200,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:notes/models/task.dart';
 
+import '../repositories/repositories.dart';
 import '../widgets/widgets.dart';
 
 class HomePage extends StatefulWidget {
@@ -11,18 +12,21 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<Task> tasks = [];
-  final TextEditingController taskController = TextEditingController();
+  List<Task> _tasks = [];
+  final TextEditingController _taskController = TextEditingController();
+  final TaskRepository _taskRepository = TaskRepository();
+  String? _errorText;
 
   void onDelete(Task task) {
     Task? taskDeleted;
     int? index;
 
     taskDeleted = task;
-    index = tasks.indexOf(task);
+    index = _tasks.indexOf(task);
 
     setState(() {
-      tasks.remove(task);
+      _tasks.remove(task);
+      _taskRepository.save(_tasks);
     });
 
     ScaffoldMessenger.of(context).clearSnackBars();
@@ -38,7 +42,7 @@ class _HomePageState extends State<HomePage> {
           label: 'Desfazer',
           onPressed: () => {
             setState(() {
-              tasks.insert(index!, taskDeleted!);
+              _tasks.insert(index!, taskDeleted!);
             }),
           },
         ),
@@ -49,7 +53,8 @@ class _HomePageState extends State<HomePage> {
 
   void onDeleteAll() {
     setState(() {
-      tasks.clear();
+      _tasks.clear();
+      _taskRepository.save(_tasks);
     });
   }
 
@@ -80,6 +85,53 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void onSave() {
+    String text = _taskController.text;
+
+    if (text.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return const AlertWidget(
+            title: 'Erro',
+            content: 'Não pode adicionar uma tarefa vazia!',
+            closeButtonLabel: 'Fechar',
+          );
+        },
+      );
+
+      setState(() {
+        _errorText = 'O Título não pode ser vazio';
+      });
+    } else {
+      setState(() {
+        _errorText = null;
+
+        Task task = Task(
+          title: text,
+          datetime: DateTime.now(),
+        );
+        _tasks.add(task);
+        _taskRepository.save(_tasks);
+      });
+    }
+
+    _taskController.clear();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    _taskRepository.get('task_list').then(
+          (value) => {
+            setState(() {
+              _tasks = value;
+            })
+          },
+        );
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -95,12 +147,19 @@ class _HomePageState extends State<HomePage> {
                   Expanded(
                     flex: 4,
                     child: TextField(
-                      controller: taskController,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Insira sua tarefa!',
-                        hintText: 'Estudar flutter',
-                      ),
+                      controller: _taskController,
+                      decoration: InputDecoration(
+                          focusedBorder: const OutlineInputBorder(
+                              borderSide: BorderSide(
+                            color: Colors.tealAccent,
+                          )),
+                          border: const OutlineInputBorder(),
+                          labelText: 'Insira sua tarefa!',
+                          hintText: 'Ex: Estudar flutter',
+                          errorText: _errorText,
+                          labelStyle: const TextStyle(
+                            color: Colors.tealAccent,
+                          )),
                     ),
                   ),
                   const SizedBox(
@@ -109,29 +168,7 @@ class _HomePageState extends State<HomePage> {
                   Expanded(
                     flex: 1,
                     child: ElevatedButton(
-                      onPressed: () {
-                        String text = taskController.text;
-
-                        if (text != '') {
-                          setState(() {
-                            Task task = Task(title: text, date: DateTime.now());
-                            tasks.add(task);
-                          });
-                        } else {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return const AlertWidget(
-                                title: 'Erro',
-                                content: 'Não pode adicionar uma tarefa vazia!',
-                                closeButtonLabel: 'Fechar',
-                              );
-                            },
-                          );
-                        }
-
-                        taskController.clear();
-                      },
+                      onPressed: onSave,
                       style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.tealAccent,
                           fixedSize: const Size(60, 60)),
@@ -148,7 +185,7 @@ class _HomePageState extends State<HomePage> {
                 child: ListView(
                   shrinkWrap: true,
                   children: [
-                    for (Task task in tasks)
+                    for (Task task in _tasks)
                       // ListTile(
                       //   title: Text(task),
                       //   subtitle: Text(convertDate(DateTime.now())),
@@ -169,7 +206,7 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   Expanded(
                     child: Text(
-                      "Você possui ${tasks.length} tarefas pendentes!",
+                      "Você possui ${_tasks.length} tarefas pendentes!",
                     ),
                   ),
                   const SizedBox(
