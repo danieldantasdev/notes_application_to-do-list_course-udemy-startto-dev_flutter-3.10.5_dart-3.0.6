@@ -47,6 +47,39 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void onDeleteAll() {
+    setState(() {
+      tasks.clear();
+    });
+  }
+
+  void showDeleteConfirmationDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Limpar tudo?"),
+        content: const Text("Tem certeza que deseja apagar todas tarefas?"),
+        actions: [
+          TextButton(
+            onPressed: () => {
+              Navigator.of(context).pop(),
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.tealAccent),
+            child: const Text("Cancelar"),
+          ),
+          TextButton(
+            onPressed: () => {
+              Navigator.of(context).pop(),
+              onDeleteAll(),
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text("Limpar"),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -144,9 +177,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      setState(() {
-                        tasks.clear();
-                      });
+                      showDeleteConfirmationDialog();
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.tealAccent,
