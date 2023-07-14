@@ -15,9 +15,36 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController taskController = TextEditingController();
 
   void onDelete(Task task) {
+    Task? taskDeleted;
+    int? index;
+
+    taskDeleted = task;
+    index = tasks.indexOf(task);
+
     setState(() {
       tasks.remove(task);
     });
+
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          "Tarefa ${task.title} removida com sucesso!",
+          style: const TextStyle(color: Colors.black),
+        ),
+        backgroundColor: Colors.white,
+        action: SnackBarAction(
+          textColor: Colors.tealAccent,
+          label: 'Desfazer',
+          onPressed: () => {
+            setState(() {
+              tasks.insert(index!, taskDeleted!);
+            }),
+          },
+        ),
+        duration: const Duration(seconds: 5),
+      ),
+    );
   }
 
   @override
