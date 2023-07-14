@@ -12,8 +12,13 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<Task> tasks = [];
-
   final TextEditingController taskController = TextEditingController();
+
+  void onDelete(Task task) {
+    setState(() {
+      tasks.remove(task);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -94,6 +99,7 @@ class _HomePageState extends State<HomePage> {
                       // ),
                       ListItemWidget(
                         task: task,
+                        onDelete: onDelete,
                       ),
                   ],
                 ),
